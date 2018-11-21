@@ -76,8 +76,14 @@ http {
         }
         {{end}}
 
+        error_page 404 500 502 503 504 /error.html;
+        location = /error.html {
+                root /usr/share/nginx/unavailable;
+                internal;
+        }
         location / {
-           return 404;
+           root /usr/share/nginx/unavailable;
+           try_files $uri $uri/ /error.html =404;
         }
     }
 
