@@ -35,15 +35,17 @@ server {
 
 	server_name {{$server.Name}};
 
+	error_page 404 500 502 503 504 /error.html;
+	
 	location = /error.html {
 		root /usr/share/nginx/unavailable;
 		try_files $uri $uri/ =404;
 		internal;
 	}
 
-	location /ingres-assests/ {
+	location ~* /(ingres-assests/.*)$ {
 		root /usr/share/nginx/unavailable;
-		try_files $uri $uri/ =404;
+		try_files $uri $uri/ /$1;
 	}
 
 	{{range $proxyHideHeader := $server.ProxyHideHeaders}}
@@ -158,9 +160,7 @@ server {
 		proxy_set_header X-Forwarded-Proto {{if $server.RedirectToHTTPS}}https{{else}}$scheme{{end}};
 		proxy_buffering {{if $location.ProxyBuffering}}on{{else}}off{{end}};
 
-
-		error_page 404 500 502 503 504 /error.html;
-
+		
 		{{- if $location.ProxyBuffers}}
 		proxy_buffers {{$location.ProxyBuffers}};
 		{{- end}}
