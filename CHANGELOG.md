@@ -1,5 +1,314 @@
 # Changelog
 
+### 1.6.0
+
+OVERVIEW:
+
+Release 1.6.0 includes: 
+* Improvements to VirtualServer and VirtualServerRoute resources, adding support for richer load balancing behavior, more sophisticated request routing, redirects, direct responses, and blue-green and circuit breaker patterns. The VirtualServer and VirtualServerRoute resources are enabled by default and are ready for production use.
+* Support for OpenTracing, helping you to monitor and debug complex transactions.
+* An improved security posture, with support to run the Ingress Controller as a non-root user.
+
+The release announcement blog post includes the overview for each feature. See https://www.nginx.com/blog/announcing-nginx-ingress-controller-for-kubernetes-release-1-6-0/
+
+You will find the complete changelog for release 1.6.0, including bug fixes, improvements, and changes below.
+
+FEATURES FOR VIRTUALSERVER AND VIRTUALSERVERROUTE RESOURCES:
+* [780](https://github.com/nginxinc/kubernetes-ingress/pull/780): Add support for canned responses to VS/VSR.
+* [778](https://github.com/nginxinc/kubernetes-ingress/pull/778): Add redirect support in VS/VSR.
+* [766](https://github.com/nginxinc/kubernetes-ingress/pull/766): Add exact matches and regex support to location paths in VS/VSR.
+* [748](https://github.com/nginxinc/kubernetes-ingress/pull/748): Add TLS redirect support in Virtualserver.
+* [745](https://github.com/nginxinc/kubernetes-ingress/pull/745): Improve routing rules in VS/VSR
+* [728](https://github.com/nginxinc/kubernetes-ingress/pull/728): Add session persistence in VS/VSR.
+* [724](https://github.com/nginxinc/kubernetes-ingress/pull/724): Add VS/VSR Prometheus metrics.
+* [712](https://github.com/nginxinc/kubernetes-ingress/pull/712): Add service subselector support in vs/vsr.
+* [707](https://github.com/nginxinc/kubernetes-ingress/pull/707): Emit warning events in VS/VSR.
+* [701](https://github.com/nginxinc/kubernetes-ingress/pull/701): Add support queue in upstreams for plus in VS/VSR.
+* [693](https://github.com/nginxinc/kubernetes-ingress/pull/693): Add ServerStatusZones support in vs/vsr.
+* [670](https://github.com/nginxinc/kubernetes-ingress/pull/670): Add buffering support for vs/vsr.
+* [660](https://github.com/nginxinc/kubernetes-ingress/pull/660): Add ClientBodyMaxSize support in vs/vsr.
+* [659](https://github.com/nginxinc/kubernetes-ingress/pull/659): Support configuring upstream zone sizes in VS/VSR.
+* [655](https://github.com/nginxinc/kubernetes-ingress/pull/655): Add slow-start support in vs/vsr.
+* [653](https://github.com/nginxinc/kubernetes-ingress/pull/653): Add websockets support for vs/vsr upstreams.
+* [641](https://github.com/nginxinc/kubernetes-ingress/pull/641): Add support for ExternalName Services for vs/vsr.
+* [635](https://github.com/nginxinc/kubernetes-ingress/pull/635): Add HealthChecks support for vs/vsr.
+* [634](https://github.com/nginxinc/kubernetes-ingress/pull/634): Add Active Connections support to vs/vsr.
+* [628](https://github.com/nginxinc/kubernetes-ingress/pull/628): Add retries support for vs/vsr.
+* [621](https://github.com/nginxinc/kubernetes-ingress/pull/621): Add TLS support for vs/vsr upstreams.
+* [617](https://github.com/nginxinc/kubernetes-ingress/pull/617): Add keepalive support to vs/vsr.
+* [612](https://github.com/nginxinc/kubernetes-ingress/pull/612): Add timeouts support to vs/vsr.
+* [607](https://github.com/nginxinc/kubernetes-ingress/pull/607): Add fail-timeout and max-fails support to vs/vsr.
+* [596](https://github.com/nginxinc/kubernetes-ingress/pull/596): Add lb-method support in vs and vsr.
+
+FEATURES:
+* [750](https://github.com/nginxinc/kubernetes-ingress/pull/750): Add support for health status uri customisation. 
+* [691](https://github.com/nginxinc/kubernetes-ingress/pull/691): Helper Functions for custom annotations.
+* [631](https://github.com/nginxinc/kubernetes-ingress/pull/631): Add max_conns support for NGINX plus.
+* [629](https://github.com/nginxinc/kubernetes-ingress/pull/629): Added upstream zone directive annotation. Thanks to [Victor Regalado](https://github.com/vrrs).
+* [616](https://github.com/nginxinc/kubernetes-ingress/pull/616): Add proxy-send-timeout to configmap key and annotation.
+* [615](https://github.com/nginxinc/kubernetes-ingress/pull/615): Add support for Opentracing.
+* [614](https://github.com/nginxinc/kubernetes-ingress/pull/614): Add max-conns annotation. Thanks to [Victor Regalado](https://github.com/vrrs).
+
+
+IMPROVEMENTS:
+* [678](https://github.com/nginxinc/kubernetes-ingress/pull/678): Increase defaults for server-names-hash-max-size and servers-names-hash-bucket-size ConfigMap keys.
+* [694](https://github.com/nginxinc/kubernetes-ingress/pull/694): Reject VS/VSR resources with enabled plus features for OSS.
+* Documentation improvements: [713](https://github.com/nginxinc/kubernetes-ingress/pull/713) thanks to [Matthew Wahner](https://github.com/mattwahner).
+
+BUGFIXES:
+* [788](https://github.com/nginxinc/kubernetes-ingress/pull/788): Fix VSR updates when namespace is set implicitly.
+* [736](https://github.com/nginxinc/kubernetes-ingress/pull/736): Init Ingress labeled metrics on start.
+* [686](https://github.com/nginxinc/kubernetes-ingress/pull/686): Check if config map created for leader-election.
+* [664](https://github.com/nginxinc/kubernetes-ingress/pull/664): Fix reporting events for Ingress minions.
+* [632](https://github.com/nginxinc/kubernetes-ingress/pull/632): Fix hsts support when not using SSL. Thanks to [Martín Fernández](https://github.com/bilby91).
+
+HELM CHART:
+* The version of the helm chart is now 0.4.0.
+* Add new parameters to the Chart: `controller.healthCheckURI`, `controller.resources`, `controller.logLevel`, `controller.customPorts`, `controller.service.customPorts`. Added in [750](https://github.com/nginxinc/kubernetes-ingress/pull/750), [636](https://github.com/nginxinc/kubernetes-ingress/pull/636) thanks to [Guilherme Oki](https://github.com/guilhermeoki), [600](https://github.com/nginxinc/kubernetes-ingress/pull/600), [581](https://github.com/nginxinc/kubernetes-ingress/pull/581) thanks to [Alex Meijer](https://github.com/ameijer-corsha).
+* [722](https://github.com/nginxinc/kubernetes-ingress/pull/722): Fix trailing leader election cm when using helm. This change might lead to a failed upgrade. See the helm upgrade instruction below.
+* [573](https://github.com/nginxinc/kubernetes-ingress/pull/573): Use Controller name value for app selectors.
+
+CHANGES:
+* Update NGINX versions to 1.17.6.
+* Update NGINX Plus version to R20.
+* [799](https://github.com/nginxinc/kubernetes-ingress/pull/779): Enable CRDs by default. VirtualServer and VirtualServerRoute resources are now enabled by default.
+* [772](https://github.com/nginxinc/kubernetes-ingress/pull/772): Update VS/VSR version from v1alpha1 to v1. Make sure to update the `apiVersion` of your VirtualServer and VirtualServerRoute resources.
+* [748](https://github.com/nginxinc/kubernetes-ingress/pull/748): Add TLS redirect support in VirtualServer. The `redirect-to-https` and `ssl-redirect` ConfigMap keys no longer have any effect on generated configs for VirtualServer resources.
+* [745](https://github.com/nginxinc/kubernetes-ingress/pull/745): Improve routing rules. Update the spec of VirtualServer and VirtualServerRoute accordingly. See YAML examples of the changes [here](https://github.com/nginxinc/kubernetes-ingress/pull/745).
+* [710](https://github.com/nginxinc/kubernetes-ingress/pull/710): Run IC as non-root. Make sure to use the updated manifests to install/upgrade the Ingress Controller.
+* [603](https://github.com/nginxinc/kubernetes-ingress/pull/603): Update apiVersion in Deployments and DaemonSets to apps/v1.
+
+UPGRADE:
+* For NGINX, use the 1.6.0 image from our DockerHub: `nginx/nginx-ingress:1.6.0` or `nginx/nginx-ingress:1.6.0-alpine`
+* For NGINX Plus, please build your own image using the 1.6.0 source code.
+* For Helm, use version 0.4.0 of the chart.
+
+HELM UPGRADE:
+
+If leader election (the `controller.reportIngressStatus.enableLeaderElection` parameter) is enabled, when upgrading to the new version of the Helm chart:
+1. Make sure to specify a new ConfigMap lock name (`controller.reportIngressStatus.leaderElectionLockName`) different from the one that was created by the current version. To find out the current name, check ConfigMap resources in the namespace where the Ingress Controller is running.
+1. After the upgrade, delete the old ConfigMap.
+
+Otherwise, the helm upgrade will not succeed.
+
+### 1.5.8
+
+CHANGES:
+* Update NGINX version to 1.17.6.
+* Update deployment and daemonset manifests to apps/v1.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.8.
+
+UPGRADE:
+* For NGINX, use the 1.5.8 image from our DockerHub: `nginx/nginx-ingress:1.5.8` or `nginx/nginx-ingress:1.5.8-alpine`
+* For NGINX Plus, please build your own image using the 1.5.8 source code.
+* For Helm, use version 0.3.8 of the chart.
+
+### 1.5.7
+
+CHANGES:
+* Update NGINX version to 1.17.5.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.7.
+
+UPGRADE:
+* For NGINX, use the 1.5.7 image from our DockerHub: `nginx/nginx-ingress:1.5.7` or `nginx/nginx-ingress:1.5.7-alpine`
+* For NGINX Plus, please build your own image using the 1.5.7 source code.
+* For Helm, use version 0.3.7 of the chart.
+
+### 1.5.6
+
+CHANGES:
+* Update NGINX version to 1.17.4.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.6.
+
+UPGRADE:
+* For NGINX, use the 1.5.6 image from our DockerHub: `nginx/nginx-ingress:1.5.6` or `nginx/nginx-ingress:1.5.6-alpine`
+* For NGINX Plus, please build your own image using the 1.5.6 source code.
+* For Helm, use version 0.3.6 of the chart.
+
+### 1.5.5
+
+CHANGES:
+* Update NGINX Plus version to R19.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.5.
+
+UPGRADE:
+* For NGINX, use the 1.5.5 image from our DockerHub: `nginx/nginx-ingress:1.5.5` or `nginx/nginx-ingress:1.5.5-alpine`
+* For NGINX Plus, please build your own image using the 1.5.5 source code.
+* For Helm, use version 0.3.5 of the chart.
+
+### 1.5.4
+
+CHANGES:
+* Update NGINX version to 1.17.3.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.4.
+
+UPGRADE:
+* For NGINX, use the 1.5.4 image from our DockerHub: `nginx/nginx-ingress:1.5.4` or `nginx/nginx-ingress:1.5.4-alpine`
+* For NGINX Plus, please build your own image using the 1.5.4 source code.
+* For Helm, use version 0.3.4 of the chart.
+
+### 1.5.3
+
+CHANGES:
+* Update NGINX Plus version to R18p1.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.3.
+
+UPGRADE:
+* For NGINX, use the 1.5.3 image from our DockerHub: `nginx/nginx-ingress:1.5.3` or `nginx/nginx-ingress:1.5.3-alpine`
+* For NGINX Plus, please build your own image using the 1.5.3 source code.
+* For Helm, use version 0.3.3 of the chart.
+
+### 1.5.2
+
+CHANGES:
+* Update NGINX version to 1.17.2.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.2.
+
+UPGRADE:
+* For NGINX, use the 1.5.2 image from our DockerHub: `nginx/nginx-ingress:1.5.2` or `nginx/nginx-ingress:1.5.2-alpine`
+* For NGINX Plus, please build your own image using the 1.5.2 source code.
+* For Helm, use version 0.3.2 of the chart.
+
+### 1.5.1
+
+CHANGES:
+* Update NGINX version to 1.17.1.
+
+HELM CHART:
+* The version of the Helm chart is now 0.3.1.
+* [593](https://github.com/nginxinc/kubernetes-ingress/pull/593): Fix the selector in the Ingress Controller service when the `controller.name` parameter is set. This introduces a change, see the HELM UPGRADE section.
+
+UPGRADE:
+* For NGINX, use the 1.5.1 image from our DockerHub: `nginx/nginx-ingress:1.5.1` or `nginx/nginx-ingress:1.5.1-alpine`
+* For NGINX Plus, please build your own image using the 1.5.1 source code.
+* For Helm, use version 0.3.1 of the chart.
+
+HELM UPGRADE:
+
+In the changelog of Release 1.5.0, we advised not to upgrade the helm chart from `0.2.1` to `0.3.0` unless the mentioned in the changelog problems were acceptable. This release we provide mitigation instructions on how to upgrade from `0.2.1` to `0.3.1` without disruptions. 
+
+When you upgrade from `0.2.1` to `0.3.1`, make sure to configure the following parameters:
+* `controller.name` is set to `nginx-ingress` or the previously used value in case you customized it. This ensures the Deployment/Daemonset will not be recreated.
+* `controller.service.name` is set to `nginx-ingress`. This ensures the service will not be recreated.
+* `controller.config.name` is set to `nginx-config`. This ensures the ConfigMap will not be recreated.
+
+Upgrading from `0.3.0` to `0.3.1`: Upgrading is not affected unless you customized `controller.name`. In that case, because of the fix [593](https://github.com/nginxinc/kubernetes-ingress/pull/593), the upgraded service will have a new selector, and the upgraded pod spec will have a new label. As a result, during an upgrade, the old pods will be immediately excluded from the service. Also, for the Deployment, the old pods will not terminate but continue to run. To terminate the old pods, manually remove the corresponding ReplicaSet.
+
+### 1.5.0
+
+FEATURES:
+* [560](https://github.com/nginxinc/kubernetes-ingress/pull/560): Add new configuration resources -- VirtualServer and VirtualServerRoute.
+* [554](https://github.com/nginxinc/kubernetes-ingress/pull/554): Add new Prometheus metrics related to the Ingress Controller's operation (as opposed to NGINX/NGINX Plus metrics).
+* [496](https://github.com/nginxinc/kubernetes-ingress/pull/496): Support a wildcard TLS certificate for TLS-enabled Ingress resources.
+* [485](https://github.com/nginxinc/kubernetes-ingress/pull/485): Support ExternalName services in Ingress backends.
+
+IMPROVEMENTS:
+* Add new ConfigMap keys: `keepalive-timeout`, `keepalive-requests`, `access-log-off`, `variables-hash-bucket-size`, `variables-hash-max-size`. Added in [565](https://github.com/nginxinc/kubernetes-ingress/pull/565), [511](https://github.com/nginxinc/kubernetes-ingress/pull/511).
+* [504](https://github.com/nginxinc/kubernetes-ingress/pull/504): Run the Prometheus exporter inside the Ingress Controller process instead of a sidecar container.
+
+BUGFIXES:
+* [520](https://github.com/nginxinc/kubernetes-ingress/pull/520): Fix the type of the Prometheus port annotation in manifests.
+* [481](https://github.com/nginxinc/kubernetes-ingress/pull/481): Fix the HSTS support.
+* [439](https://github.com/nginxinc/kubernetes-ingress/pull/439): Fix the validation of the `lb-method` ConfigMap key and `nginx.org/lb-method` annotation.
+
+HELM CHART:
+* The version of the helm chart is now 0.3.0.
+* The helm chart is now available in our helm chart repo `helm.nginx.com/stable`. 
+* Add new parameters to the Chart: `controller.service.httpPort.targetPort`, `controller.service.httpsPort.targetPort`, `controller.service.name`, `controller.pod.annotations`, `controller.config.name`, `controller.reportIngressStatus.leaderElectionLockName`, `controller.service.httpPort`, `controller.service.httpsPort`, `controller.service.loadBalancerIP`, `controller.service.loadBalancerSourceRanges`, `controller.tolerations`, `controller.affinity`. Added in [562](https://github.com/nginxinc/kubernetes-ingress/pull/562), [561](https://github.com/nginxinc/kubernetes-ingress/pull/561), [553](https://github.com/nginxinc/kubernetes-ingress/pull/553), [534](https://github.com/nginxinc/kubernetes-ingress/pull/534) thanks to [Paulo Ribeiro](https://github.com/paigr), [479](https://github.com/nginxinc/kubernetes-ingress/pull/479) thanks to [Alejandro Llanes](https://github.com/sombralibre),  [468](https://github.com/nginxinc/kubernetes-ingress/pull/468), [456](https://github.com/nginxinc/kubernetes-ingress/pull/456).
+* [546](https://github.com/nginxinc/kubernetes-ingress/pull/546): Support deploying multiple Ingress Controllers in a cluster. **Note**: The generated resources have new names that are unique for each Ingress Controller. As a consequence, the name change affects the upgrade. See the HELM UPGRADE section for more information. 
+* [542](https://github.com/nginxinc/kubernetes-ingress/pull/542): Reduce the required privileges in the RBAC manifests.
+
+CHANGES:
+* Update NGINX version to 1.15.12.
+* Prometheus metrics for NGINX/NGINX Plus have new namespace `nginx_ingress`. Examples: `nginx_http_requests_total` -> `nginx_ingress_http_requests_total`, `nginxplus_http_requests_total` -> `nginx_ingress_nginxplus_http_requests_total`.
+
+UPGRADE:
+* For NGINX, use the 1.5.0 image from our DockerHub: `nginx/nginx-ingress:1.5.0` or `nginx/nginx-ingress:1.5.0-alpine`
+* For NGINX Plus, please build your own image using the 1.5.0 source code.
+* For Helm, use version 0.3.0 of the chart.
+
+HELM UPGRADE:
+
+The new version of the helm chart uses different names for the generated resources. This makes it possible to deploy multiple Ingress Controllers in a cluster. However, as a side effect, during the upgrade from the previous version, helm will recreate the resources, instead of updating the existing ones. This, in turn, might cause problems for the following resources:
+* Service: If the service was created with the type LoadBalancer, the public IP of the new service might change. Additionally, helm updates the selector of the service, so that the old pods will be immediately excluded from the service. 
+* Deployment/DaemonSet: Because the resource is recreated, the old pods will be removed and the new ones will be launched, instead of the default Deployment/Daemonset upgrade strategy. 
+* ConfigMap: After the helm removes the resource, the old Ingress Controller pods will be immediately reconfigured to use the default values of the ConfigMap keys. During a small window between the reconfiguration and the shutdown of the old pods, NGINX will use the configuration with the default values.
+
+We advise not to upgrade to the new version of the helm chart unless the mentioned problems are acceptable for your case. We will provide special upgrade instructions for helm that mitigate the problems for the next minor release of the Ingress Controller (1.5.1).
+
+### 1.4.6
+
+CHANGES:
+* Update NGINX version to 1.15.11.
+* Update NGINX Plus version to R18.
+
+HELM CHART:
+* The version of the Helm chart is now 0.2.1.
+
+UPGRADE:
+* For NGINX, use the 1.4.6 image from our DockerHub: `nginx/nginx-ingress:1.4.6` or `nginx/nginx-ingress:1.4.6-alpine`
+* For NGINX Plus, please build your own image using the 1.4.6 source code.
+* For Helm, use version 0.2.1 of the chart.
+
+### 1.4.5
+
+CHANGES:
+* Update NGINX version to 1.15.10.
+
+UPGRADE:
+* For NGINX, use the 1.4.5 image from our DockerHub: `nginx/nginx-ingress:1.4.5` or `nginx/nginx-ingress:1.4.5-alpine`
+* For NGINX Plus, please build your own image using the 1.4.5 source code.
+
+### 1.4.4
+
+CHANGES:
+* Update NGINX version to 1.15.9.
+
+UPGRADE:
+* For NGINX, use the 1.4.4 image from our DockerHub: `nginx/nginx-ingress:1.4.4` or `nginx/nginx-ingress:1.4.4-alpine`
+* For NGINX Plus, please build your own image using the 1.4.4 source code.
+
+### 1.4.3
+
+CHANGES:
+* Update NGINX version to 1.15.8.
+
+UPGRADE:
+* For NGINX, use the 1.4.3 image from our DockerHub: `nginx/nginx-ingress:1.4.3` or `nginx/nginx-ingress:1.4.3-alpine`
+* For NGINX Plus, please build your own image using the 1.4.3 source code.
+
+### 1.4.2
+
+CHANGES:
+* Update NGINX Plus version to R17.
+
+ UPGRADE:
+* For NGINX, use the 1.4.2 image from our DockerHub: `nginx/nginx-ingress:1.4.2` or `nginx/nginx-ingress:1.4.2-alpine`
+* For NGINX Plus, please build your own image using the 1.4.2 source code.
+
+### 1.4.1
+
+CHANGES:
+* Update NGINX version to 1.15.7.
+
+UPGRADE:
+* For NGINX, use the 1.4.1 image from our DockerHub: `nginx/nginx-ingress:1.4.1` or `nginx/nginx-ingress:1.4.1-alpine`
+* For NGINX Plus, please build your own image using the 1.4.1 source code.
+
 ### 1.4.0
 
 FEATURES:

@@ -9,12 +9,11 @@ Make sure you have access to the Ingress controller image:
 
 The installation manifests are located in the [deployments](../deployments) folder. In the steps below we assume that you will be running the commands from that folder.
 
-## 1. Create a Namespace, a SA, the Default Secret and the Customization Config Map.
+## 1. Create a Namespace, a SA, the Default Secret, the Customization Config Map, and Custom Resource Definitions
 
 1. Create a namespace and a service account for the Ingress controller:
     ```
     kubectl apply -f common/ns-and-sa.yaml
-
     ```
 
 1. Create a secret with a TLS certificate and a key for the default server in NGINX:
@@ -27,6 +26,11 @@ The installation manifests are located in the [deployments](../deployments) fold
 1. Create a config map for customizing NGINX configuration (read more about customization [here](configmap-and-annotations.md)):
     ```
     $ kubectl apply -f common/nginx-config.yaml
+    ```
+
+1. Create custom resource definitions for [VirtualServer and VirtualServerRoute](virtualserver-and-virtualserverroute.md) resources:
+    ```
+    $ kubectl apply -f common/custom-resource-definitions.yaml
     ```
 
 ## 2. Configure RBAC
@@ -147,7 +151,7 @@ Read more about the type LoadBalancer [here](https://kubernetes.io/docs/concepts
 ## 5. Access the Live Activity Monitoring Dashboard / Stub_status Page
 For NGINX, you can access the [stub_status page](http://nginx.org/en/docs/http/ngx_http_stub_status_module.html):
 1. Stub_status is enabled by default. Ensure that the `nginx-status` command-line argument is not set to false.
-2. Stub_status is available on port 8080 by default. It is customizable by the `nginx-status-port` command-line argument. If yours is not on 8080, modify the kubectl proxy command below.
+1. Stub_status is available on port 8080 by default. It is customizable by the `nginx-status-port` command-line argument. If yours is not on 8080, modify the kubectl proxy command below.
 1. Use the `kubectl port-forward` command to forward connections to port 8080 on your local machine to port 8080 of an NGINX Ingress controller pod (replace `<nginx-ingress-pod>` with the actual name of a pod):.
     ```
     $ kubectl port-forward <nginx-ingress-pod> 8080:8080 --namespace=nginx-ingress
@@ -166,26 +170,19 @@ For NGINX Plus, you can access the live activity monitoring dashboard:
 
 ## Support For Prometheus Monitoring
 
-If you are using [Prometheus](https://prometheus.io/), you can deploy the NGINX Ingress controller with the [Prometheus exporter](https://github.com/nginxinc/nginx-prometheus-exporter) for NGINX. The exporter will export NGINX metrics into your Prometheus.
+You can expose NGINX/NGINX Plus and Ingress Controller [metrics](./prometheus.md) for collection by [Prometheus](https://prometheus.io/):
 
-To deploy the NGINX Ingress controller with the exporter, use the modified manifests:
-* For a deployment, run:
+1. Run the Ingress controller with the `-enable-prometheus-metrics` [command-line argument](cli-arguments.md). As a result, the Ingress Controller will expose NGINX or NGINX Plus metrics in the Prometheus format via the path `/metrics` on port `9113` (customizable via the `-prometheus-metrics-listen-port` command-line argument).
+1. Add the Prometheus port to the list of the ports of the Ingress Controller container:
+    ```yaml
+    - name: prometheus
+      containerPort: 9113
     ```
-    $ kubectl apply -f deployment/nginx-ingress-with-prometheus.yaml
-    ```
-* For a daemonset, run:
-    ```
-    $ kubectl apply -f daemon-set/nginx-ingress-with-prometheus.yaml
-    ```
-
-To deploy the NGINX Plus Ingress controller with the exporter, use the modified manifests:
-* For a deployment, run:
-    ```
-    $ kubectl apply -f deployment/nginx-plus-ingress-with-prometheus.yaml
-    ```
-* For a daemon set, run:
-    ```
-    $ kubectl apply -f daemon-set/nginx-plus-ingress-with-prometheus.yaml
+1. Make Prometheus aware of the Ingress Controller targets by adding the following annotations to the template of the Ingress Controller pod (note: this assumes your Prometheus is configured to discover targets by analyzing the annotations of pods):
+    ```yaml
+    annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: 9113
     ```
 
 ## Uninstall the Ingress Controller
@@ -193,5 +190,12 @@ To deploy the NGINX Plus Ingress controller with the exporter, use the modified 
 Delete the `nginx-ingress` namespace to uninstall the Ingress controller along with all the auxiliary resources that were created:
 ```
 $ kubectl delete namespace nginx-ingress
+```
+
+**Note**: If RBAC is enabled on your cluster and you completed step 2, you will need to remove the ClusterRole and ClusterRoleBinding created in that step:
+
+```
+$ kubectl delete clusterrole nginx-ingress
+$ kubectl delete clusterrolebinding nginx-ingress
 ```
 

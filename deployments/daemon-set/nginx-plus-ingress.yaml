@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: nginx-ingress
@@ -11,6 +11,9 @@ spec:
     metadata:
       labels:
         app: nginx-ingress
+     #annotations:
+       #prometheus.io/scrape: "true"
+       #prometheus.io/port: "9113"
     spec:
       serviceAccountName: nginx-ingress
       containers:
@@ -24,6 +27,16 @@ spec:
         - name: https
           containerPort: 443
           hostPort: 443
+       #- name: prometheus
+         #containerPort: 9113
+        securityContext:
+          allowPrivilegeEscalation: true
+          runAsUser: 101 #nginx
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -37,7 +50,8 @@ spec:
           - -nginx-plus
           - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
           - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
-         #- -v=3 # Enables extensive logging. Useful for trooublshooting.
+         #- -v=3 # Enables extensive logging. Useful for troubleshooting.
          #- -report-ingress-status
          #- -external-service=nginx-ingress
          #- -enable-leader-election
+         #- -enable-prometheus-metrics

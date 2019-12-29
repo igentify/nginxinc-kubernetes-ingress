@@ -1,10 +1,10 @@
 # Custom Annotations
 
-Custom annotations enable you to quickly extend the Ingress Controller to support many advanced features of NGINX, such as rate limiting, caching, etc.
+Custom annotations enable you to quickly extend the Ingress resource to support many advanced features of NGINX, such as rate limiting, caching, etc.
 
 ## What are Custom Annotations
 
-NGINX Ingress Controller supports a number of annotations that fine tune NGINX configuration (for example, connection timeouts) or enable additional features (for example, JWT validation). The complete list of annotations is available [here](configmap-and-annotations.md).
+NGINX Ingress Controller supports a number of annotations for the Ingress resource that fine tune NGINX configuration (for example, connection timeouts) or enable additional features (for example, JWT validation). The complete list of annotations is available [here](configmap-and-annotations.md).
 
 The annotations are provided only for the most common features and use cases, meaning that not every NGINX feature or a customization option is available through the annotations. Additionally, even if an annotation is available, it might not give you the satisfactory level of control of a particular NGINX feature. 
 
@@ -12,7 +12,7 @@ Custom annotations allow you to add an annotation for an NGINX feature that is n
 
 ## Usage
 
-The Ingress Controller generates NGINX configuration for Ingress resources by executing a configuration template. See [NGINX template](../internal/nginx/templates/nginx.ingress.tmpl) or [NGINX Plus template](../internal/nginx/templates/nginx-plus.ingress.tmpl). 
+The Ingress Controller generates NGINX configuration for Ingress resources by executing a configuration template. See [NGINX template](../internal/configs/version1/nginx.ingress.tmpl) or [NGINX Plus template](../internal/configs/version1/nginx-plus.ingress.tmpl). 
 
 To support custom annotations, the template has access to the information about the Ingress resource - its *name*, *namespace* and *annotations*. It is possible to check if a particular annotation present in the Ingress resource and conditionally insert NGINX configuration directives at multiple NGINX contexts - `http`, `server`, `location` or `upstream`. Additionally, you can get the value that is set to the annotation. 
 
@@ -85,6 +85,37 @@ If you'd like to use custom annotations with Mergeable Ingress resources, please
     **Note**: `$location.MinionIngress` is a pointer. When a regular Ingress resource is processed in the template, the value of the pointer is `nil`. Thus, it is important that you check that `$location.MinionIngress` is not `nil` as in the example above using the `with` action.  
 
 * Minions do not inherent custom annotations of the master.
+
+### Helper Functions
+
+Helper functions can be used in the Ingress template to parse the values of custom annotations.
+
+| Function | Input Arguments| Return Arguments | Description |
+| -------- | -------------- | ---------------- | ----------- |
+| `split` | `s, sep string` | `[]string` | Splits the string `s` into a slice of strings separated by the `sep`. |
+| `trim` | `s string` | `string` | Trims the trailing and leading whitespace from the string `s`. |
+
+Consider the following custom annotation `custom.nginx.org/allowed-ips`, which expects a comma-separated list of IP addresses:
+```
+annotations:
+  custom.nginx.org/allowed-ips: "192.168.1.3, 10.0.0.13"
+```
+
+ The helper functions can parse the value of the `custom.nginx.org/allowed-ips` annotation, so that in the template you can use each IP address separately. Consider the following template excerpt:
+
+```
+{{range $ip := split (index $.Ingress.Annotations "custom.nginx.org/allowed-ips") ","}}
+    allow {{trim $ip}};
+{{end}}
+deny all;
+```
+
+The template excerpt will generate the following configuration:
+```
+allow 192.168.1.3;
+allow 10.0.0.13;
+deny all;
+```
 
 ## Example
 

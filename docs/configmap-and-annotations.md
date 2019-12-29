@@ -1,6 +1,6 @@
 # ConfigMap and Annotations
 
-The Ingress resource only allows you to use basic NGINX features -- host and path-based routing and TLS termination. Thus, advanced features like rewriting the request URI or inserting additional response headers are not available. 
+The Ingress resource only allows you to use basic NGINX features -- host and path-based routing and TLS termination. Thus, advanced features like rewriting the request URI or inserting additional response headers are not available.
 
 In addition to using advanced features, often it is necessary to customize or fine tune NGINX behavior. For example, set the number of worker processes or customize the access log format.
 
@@ -49,7 +49,7 @@ metadata:
     nginx.org/client-max-body-size: "4m"
     nginx.org/server-snippets: |
       location / {
-        return 302 /coffee; 
+        return 302 /coffee;
       }
 spec:
   rules:
@@ -85,6 +85,7 @@ spec:
 | ---------- | -------------- | ----------- | ------- | ------- |
 | `nginx.org/proxy-connect-timeout` | `proxy-connect-timeout` | Sets the value of the [proxy_connect_timeout](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_connect_timeout) and [grpc_connect_timeout](http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_connect_timeout) directive. | `60s` | |
 | `nginx.org/proxy-read-timeout` | `proxy-read-timeout` | Sets the value of the [proxy_read_timeout](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout) and [grpc_read_timeout](http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_read_timeout) directive. | `60s` | |
+| `nginx.org/proxy-send-timeout` | `proxy-send-timeout` | Sets the value of the [proxy_send_timeout](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_send_timeout) and [grpc_send_timeout](http://nginx.org/en/docs/http/ngx_http_grpc_module.html#grpc_send_timeout) directive. | `60s` | |
 | `nginx.org/client-max-body-size` | `client-max-body-size` | Sets the value of the [client_max_body_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size) directive. | `1m` | |
 | `nginx.org/proxy-buffering` | `proxy-buffering` | Enables or disables [buffering of responses](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering) from the proxied server. | `True` | |
 | `nginx.org/proxy-buffers` | `proxy-buffers` | Sets the value of the [proxy_buffers](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffers) directive. | Depends on the platform. | |
@@ -99,16 +100,25 @@ spec:
 | N/A | `worker-connections` | Sets the value of the [worker_connections](http://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive. | `1024` | |
 | N/A | `worker-cpu-affinity` | Sets the value of the [worker_cpu_affinity](http://nginx.org/en/docs/ngx_core_module.html#worker_cpu_affinity) directive. | N/A | |
 | N/A | `worker-shutdown-timeout` | Sets the value of the [worker_shutdown_timeout](http://nginx.org/en/docs/ngx_core_module.html#worker_shutdown_timeout) directive. | N/A | |
-| N/A | `server-names-hash-bucket-size` | Sets the value of the [server_names_hash_bucket_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#server_names_hash_bucket_size) directive. | Depends on the size of the processor’s cache line. | |
-| N/A | `server-names-hash-max-size` | Sets the value of the [server_names_hash_max_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#server_names_hash_max_size) directive. | `512` | |
+| N/A | `server-names-hash-bucket-size` | Sets the value of the [server_names_hash_bucket_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#server_names_hash_bucket_size) directive. | `256` | |
+| N/A | `server-names-hash-max-size` | Sets the value of the [server_names_hash_max_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#server_names_hash_max_size) directive. | `1024` | |
+| N/A | `resolver-addresses` | Sets the value of the [resolver](http://nginx.org/en/docs/http/ngx_http_core_module.html#resolver) addresses. Note: If you use a DNS name (ex., `kube-dns.kube-system.svc.cluster.local`) as a resolver address, NGINX Plus will resolve it using the system resolver during the start and on every configuration reload. As a consequence, If the name cannot be resolved or the DNS server doesn't respond, NGINX Plus will fail to start or reload. To avoid this, consider using only IP addresses as resolver addresses. Supported in NGINX Plus only. | N/A | [Support for Type ExternalName Services](../examples/externalname-services). |
+| N/A | `resolver-ipv6` | Enables IPv6 resolution in the resolver. Supported in NGINX Plus only. | `True` | [Support for Type ExternalName Services](../examples/externalname-services). |
+| N/A | `resolver-valid` | Sets the time NGINX caches the resolved DNS records. Supported in NGINX Plus only. | TTL value of a DNS record | [Support for Type ExternalName Services](../examples/externalname-services). |
+| N/A | `resolver-timeout` | Sets the [resolver_timeout](http://nginx.org/en/docs/http/ngx_http_core_module.html#resolver_timeout) for name resolution. Supported in NGINX Plus only.  | `30s` | [Support for Type ExternalName Services](../examples/externalname-services). |
+| N/A | `keepalive-timeout` | Sets the value of the [keepalive_timeout](http://nginx.org/en/docs/http/ngx_http_core_module.html#keepalive_timeout) directive. | `65s` | |
+| N/A | `keepalive-requests` | Sets the value of the [keepalive_requests](http://nginx.org/en/docs/http/ngx_http_core_module.html#keepalive_requests) directive. | `100` | |
+| N/A | `variables-hash-bucket-size` | Sets the value of the [variables_hash_bucket_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#variables_hash_bucket_size) directive. | `256` | |
+| N/A | `variables-hash-max-size` | Sets the value of the [variables-hash-max-size](http://nginx.org/en/docs/http/ngx_http_core_module.html#variables_hash_max_size) directive. | `1024` | |
 
-### Logging 
+### Logging
 
 | Annotation | ConfigMap Key | Description | Default | Example |
 | ---------- | -------------- | ----------- | ------- | ------- |
 | N/A | `error-log-level` | Sets the global [error log level](http://nginx.org/en/docs/ngx_core_module.html#error_log) for NGINX.  | `notice` | |
-| N/A | `log-format` | Sets the custom [log format](http://nginx.org/en/docs/http/ngx_http_log_module.html#log_format).  | See the [template file](../internal/nginx/templates/nginx.tmpl). | |
-| N/A | `stream-log-format` | Sets the custom [log format](http://nginx.org/en/docs/stream/ngx_stream_log_module.html#log_format) for TCP/UDP load balancing.  | See the [template file](../internal/nginx/templates/nginx.tmpl). | |
+| N/A | `access-log-off` | Disables the [access log](http://nginx.org/en/docs/http/ngx_http_log_module.html#access_log). | `False` | |
+| N/A | `log-format` | Sets the custom [log format](http://nginx.org/en/docs/http/ngx_http_log_module.html#log_format).  | See the [template file](../internal/configs/version1/nginx.tmpl) for the access log. | |
+| N/A | `stream-log-format` | Sets the custom [log format](http://nginx.org/en/docs/stream/ngx_stream_log_module.html#log_format) for TCP/UDP load balancing.  | See the [template file](../internal/configs/version1/nginx.tmpl). | |
 
 ### Request URI/Header Manipulation
 
@@ -127,6 +137,7 @@ spec:
 | `nginx.org/hsts` | `hsts` | Enables [HTTP Strict Transport Security (HSTS)](https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/): the HSTS header is added to the responses from backends. The `preload` directive is included in the header. | `False` | |
 | `nginx.org/hsts-max-age` | `hsts-max-age` | Sets the value of the `max-age` directive of the HSTS header. | `2592000` (1 month) |
 | `nginx.org/hsts-include-subdomains` | `hsts-include-subdomains` | Adds the `includeSubDomains` directive to the HSTS header. | `False`| |
+| `nginx.org/hsts-behind-proxy` | `hsts-behind-proxy` | Enables HSTS based on the value of the `http_x_forwarded_proto` request header. Should only be used when TLS termination is configured in a load balancer (proxy) in front of the Ingress Controller. Note: to control redirection from HTTP to HTTPS configure the `nginx.org/redirect-to-https` annotation. | `False` | |
 | N/A | `ssl-protocols` | Sets the value of the [ssl_protocols](http://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_protocols) directive. | `TLSv1 TLSv1.1 TLSv1.2`| |
 | N/A | `ssl-prefer-server-ciphers` | Enables or disables the [ssl_prefer_server_ciphers](http://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_prefer_server_ciphers) directive. | `False`| |
 | N/A | `ssl-ciphers` | Sets the value of the [ssl_ciphers](http://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_ciphers) directive. | `HIGH:!aNULL:!MD5`| |
@@ -150,10 +161,12 @@ spec:
 | Annotation | ConfigMap Key | Description | Default | Example |
 | ---------- | -------------- | ----------- | ------- | ------- |
 | `nginx.org/lb-method` | `lb-method` | Sets the [load balancing method](https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/#choosing-a-load-balancing-method). To use the round-robin method, specify `"round_robin"`. | `"random two least_conn"` | |
-| `nginx.org/ssl-services` | N/A | Enables HTTPS when connecting to the endpoints of services. | N/A | [SSL Services Support](../examples/ssl-services). |
-| `nginx.org/grpc-services` | N/A | Enables gRPC for services. | N/A | [GRPC Services Support](../examples/grpc-services).|
+| `nginx.org/ssl-services` | N/A | Enables HTTPS or gRPC over SSL when connecting to the endpoints of services. | N/A | [SSL Services Support](../examples/ssl-services). |
+| `nginx.org/grpc-services` | N/A | Enables gRPC for services. Note: requires HTTP/2 (see `http2` ConfigMap key); only works for Ingresses with TLS termination enabled. | N/A | [GRPC Services Support](../examples/grpc-services).|
 | `nginx.org/websocket-services` | N/A | Enables WebSocket for services. | N/A | [WebSocket support](../examples/websocket). |
 | `nginx.org/max-fails` | `max-fails` | Sets the value of the [max_fails](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#max_fails) parameter of the `server` directive. | `1` | |
+| `nginx.org/max-conns` | N\A | Sets the value of the [max_conns](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#max_conns) parameter of the `server` directive. | `0` | |
+| `nginx.org/upstream-zone-size` | `upstream-zone-size` | Sets the size of the shared memory [zone](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#zone) for upstreams. For NGINX, the special value 0 disables the shared memory zones. For NGINX Plus, shared memory zones are required and cannot be disabled. The special value 0 will be ignored. | `256K` | |
 | `nginx.org/fail-timeout` | `fail-timeout` | Sets the value of the [fail_timeout](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#fail_timeout) parameter of the `server` directive. | `10s` | |
 | `nginx.com/sticky-cookie-services` | N/A | Configures session persistence. | N/A | [Session Persistence](../examples/session-persistence). |
 | `nginx.org/keepalive` | `keepalive` | Sets the value of the [keepalive](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#keepalive) directive. Note that `proxy_set_header Connection "";` is added to the generated configuration when the value > 0. | `0` | |
@@ -174,3 +187,11 @@ spec:
 | N/A | `stream-snippets` | Sets a custom snippet in stream context. | N/A | [Support for  TCP/UDP Load Balancing](../examples/tcp-udp). |
 | N/A | `main-template` | Sets the main NGINX configuration template. | By default the template is read from the file in the container. | [Custom Templates](../examples/custom-templates). |
 | N/A | `ingress-template` | Sets the NGINX configuration template for an Ingress resource. | By default the template is read from the file on the container. | [Custom Templates](../examples/custom-templates). |
+
+
+### Modules
+| Annotation | ConfigMap Key | Description | Default | Example |
+| ---------- | -------------- | ----------- | ------- | ------- |
+| N/A | `opentracing` | Enables [OpenTracing](https://opentracing.io) globally (for all Ingress, VirtualServer and VirtualServerRoute resources). Note: requires the Ingress Controller image with OpenTracing module and a tracer. See the [docs](./opentracing.md) for more information. | `False` | [Support for OpenTracing](../examples/opentracing/README.md). |
+| N/A | `opentracing-tracer` | Sets the path to the vendor tracer binary plugin.| N/A | [Support for OpenTracing](../examples/opentracing/README.md). |
+| N/A | `opentracing-tracer-config` | Sets the tracer configuration in JSON format.| N/A | [Support for OpenTracing](../examples/opentracing/README.md). |
